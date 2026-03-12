@@ -1,12 +1,11 @@
 name: Build Hack Keyboard APK
 
 on:
-  workflow_dispatch: # SOLO se ejecuta cuando tú das la orden manualmente
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
