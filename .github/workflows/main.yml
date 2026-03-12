@@ -1,0 +1,40 @@
+name: Build Hack Keyboard APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Cachear Buildozer
+        uses: actions/cache@v4
+        with:
+          path: |
+            .buildozer
+            ~/.buildozer
+          key: ${{ runner.os }}-buildozer-hackkeyboard-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-hackkeyboard-
+
+      - name: Instalar Dependencias del Sistema
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential git python3-dev libncurses5-dev libffi-dev libssl-dev ccache cmake libtool pkg-config autoconf automake libltdl-dev
+          pip3 install --user --upgrade Cython==0.29.33 buildozer virtualenv
+
+      - name: Compilar APK
+        run: |
+          export APP_ANDROID_ACCEPT_SDK_LICENSE=True
+          ~/.local/bin/buildozer android debug
+
+      - name: Subir APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HackKeyboard-Pro-APK
+          path: bin/*.apk
