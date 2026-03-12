@@ -8,71 +8,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.10'
+          workdir: .
+          buildozer_version: stable
 
-      - name: Cachear Buildozer
-        uses: actions/cache@v4
-        with:
-          path: |
-            .buildozer
-            ~/.buildozer
-          key: ${{ runner.os }}-buildozer-v4-${{ hashFiles('buildozer.spec') }}
-
-      - name: Instalar dependencias del sistema
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y \
-            build-essential \
-            git \
-            libncurses5-dev \
-            libffi-dev \
-            libssl-dev \
-            libltdl-dev \
-            libtool \
-            pkg-config \
-            autoconf \
-            automake \
-            ccache \
-            cmake \
-            zip \
-            unzip \
-            openjdk-17-jdk
-
-      - name: Instalar Buildozer
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install Cython==0.29.33 buildozer==1.5.0
-
-      - name: Compilar APK
-        run: |
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
-          export APP_ANDROID_ACCEPT_SDK_LICENSE=True
-          buildozer android debug 2>&1 | tee build.log
-        continue-on-error: true
-
-      - name: Verificar resultado
-        run: |
-          if ls bin/*.apk 1> /dev/null 2>&1; then
-            echo "✅ APK generado exitosamente"
-            ls -la bin/*.apk
-          else
-            echo "❌ Error en la compilación"
-            tail -100 build.log
-            exit 1
-          fi
-
-      - name: Subir APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: HackKeyboard-Pro-APK
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.apk }}
