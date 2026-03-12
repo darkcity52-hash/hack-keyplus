@@ -1,13 +1,11 @@
 name: Build Hack Keyboard APK
 
-# CAMBIO AQUÍ: Solo se activará cuando tú lo decidas
 on:
-  workflow_dispatch: # Esto crea un botón manual
+  workflow_dispatch: # SOLO se ejecuta cuando tú das la orden manualmente
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    # ... el resto del archivo sigue igual ...
 
     steps:
       - name: Checkout del repositorio
